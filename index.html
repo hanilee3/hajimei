@@ -10,31 +10,32 @@
         const someURLToRedirectTo = 'https://knx2zle4t.top/api/jumpSite?siteName=' + 'yif-suqi';
 
         async function handleRequest() {
+            // 提前进行重定向，减少等待时间
+            let redirectUrl = 'https://example.com'; // 设置一个默认的URL（如果需要，可以替换为实际返回的URL）
+
             try {
-                // 发起请求获取重定向信息
+                // 发起请求获取重定向信息（这里保留请求，若有后续需求可使用）
                 let response = await fetch(someURLToRedirectTo, { method: "GET" });
 
                 // 检查是否成功响应
-                if (!response.ok) {
+                if (response.ok) {
+                    // 解析JSON数据
+                    let result = await response.json();
+
+                    // 确保返回数据中的siteUrl存在
+                    if (result && result.data && result.data.siteUrl) {
+                        redirectUrl = result.data.siteUrl;
+                    } else {
+                        console.error('No valid site URL found in the response');
+                    }
+                } else {
                     throw new Error('Network response was not ok');
                 }
-
-                // 解析JSON数据
-                let result = await response.json();
-
-                // 确保返回数据中的siteUrl存在
-                if (result && result.data && result.data.siteUrl) {
-                    // 执行重定向
-                    self.location.href = result.data.siteUrl;
-                } else {
-                    // 如果没有有效的siteUrl，输出错误信息
-                    console.error('No valid site URL found in the response');
-                    alert('Unable to redirect: No valid URL found.');
-                }
             } catch (error) {
-                // 处理可能的错误，例如网络错误或JSON解析错误
                 console.error('Error fetching or parsing data: ', error);
-                alert('An error occurred: ' + error.message);
+            } finally {
+                // 立即进行重定向
+                self.location.href = redirectUrl;
             }
         }
 
